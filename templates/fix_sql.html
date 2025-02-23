@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix SQL Query</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center h-screen">
+    <div class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-6">
+        <h2 class="text-xl font-bold text-center">Fix Your SQL Query</h2>
+        <div class="mt-4 p-4 h-80 overflow-y-auto border rounded bg-gray-50" id="chat-box">
+            <p class="text-gray-500 text-center">Start by entering your SQL query below.</p>
+        </div>
+
+        <div class="mt-4 flex">
+            <textarea id="user-query" class="flex-grow p-2 border rounded-lg" placeholder="Enter your SQL query..."></textarea>
+            <button onclick="sendQuery('fix')" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        function sendQuery(action) {
+            let query = $("#user-query").val();
+            let chatBox = $("#chat-box");
+
+            if (!query.trim()) return;
+
+            // Display user message in chat
+            chatBox.append(`<div class="p-2 my-2 bg-blue-200 rounded-lg text-right">${query}</div>`);
+
+            $.ajax({
+                url: "/process_sql",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ query: query, action: action }),
+                success: function(response) {
+                    chatBox.append(`<div class="p-2 my-2 bg-gray-200 rounded-lg">${response.response}</div>`);
+                    $("#user-query").val("");
+                },
+                error: function() {
+                    chatBox.append(`<div class="p-2 my-2 bg-red-200 rounded-lg">Error processing request.</div>`);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
